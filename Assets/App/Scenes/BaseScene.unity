@@ -225,8 +225,8 @@ GameObject:
   - component: {fileID: 357046607}
   - component: {fileID: 357046609}
   - component: {fileID: 357046608}
-  - component: {fileID: 357046610}
   - component: {fileID: 357046611}
+  - component: {fileID: 357046610}
   m_Layer: 5
   m_Name: ConnectionButtons
   m_TagString: Untagged

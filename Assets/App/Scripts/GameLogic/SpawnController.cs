@@ -5,69 +5,72 @@ using Unity.Netcode;
 using TMPro;
 using System;
 
-public class SpawnController : NetworkBehaviour
+namespace App.Scripts.GameLogic
 {
-    [SerializeField]
-    private NetworkObject _playerPrefab;
-
-    [SerializeField]
-    private Transform[] _spawnPoints;
-
-    [SerializeField]
-    private TMP_Text _countTxt;
-
-    private NetworkVariable<int> _playerCount = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-
-    public override void OnNetworkSpawn()
+    public class SpawnController : NetworkBehaviour
     {
-        base.OnNetworkSpawn();
+        [SerializeField]
+        private NetworkObject _playerPrefab;
 
-        if (IsServer) {
-            NetworkManager.Singleton.OnConnectionEvent += OnConnectionEvent;
-        }
-        _playerCount.OnValueChanged += PlayerCountChanged;
+        [SerializeField]
+        private Transform[] _spawnPoints;
 
-    }
+        [SerializeField]
+        private TMP_Text _countTxt;
 
-    public override void OnNetworkDespawn()
-    {
-        base.OnNetworkDespawn();
+        private NetworkVariable<int> _playerCount = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
-        if (IsServer) {
-            NetworkManager.Singleton.OnConnectionEvent -= OnConnectionEvent;
-        }
-        _playerCount.OnValueChanged -= PlayerCountChanged;
-    }
-
-    private void OnConnectionEvent(NetworkManager netManager, ConnectionEventData eventData)
-    {
-        if (eventData.EventType == ConnectionEvent.ClientConnected)
+        public override void OnNetworkSpawn()
         {
-            _playerCount.Value++;
+            base.OnNetworkSpawn();
+
+            if (IsServer) {
+                NetworkManager.Singleton.OnConnectionEvent += OnConnectionEvent;
+            }
+            _playerCount.OnValueChanged += PlayerCountChanged;
+
         }
-    }
 
-    private void PlayerCountChanged(int prevVal, int newVal) => UpdateCountTextRPC(newVal);
-
-    [Rpc(SendTo.Everyone)]
-    private void UpdateCountTextRPC(int newValue) => _countTxt.text = $"Players: {newValue}";
-
-    public void SpawnAllPlayers()
-    {
-        if (!IsServer) return;
-
-        int spawnIndex = 0;
-        foreach(ulong clientId in NetworkManager.ConnectedClientsIds)
+        public override void OnNetworkDespawn()
         {
-            NetworkObject spawnedPlayerNO = NetworkManager.Instantiate(
-                _playerPrefab,
-                _spawnPoints[spawnIndex].position,
-                _spawnPoints[spawnIndex].rotation
-            );
+            base.OnNetworkDespawn();
 
-            spawnedPlayerNO.SpawnAsPlayerObject(clientId);
+            if (IsServer) {
+                NetworkManager.Singleton.OnConnectionEvent -= OnConnectionEvent;
+            }
+            _playerCount.OnValueChanged -= PlayerCountChanged;
+        }
 
-            spawnIndex = (spawnIndex + 1) % _spawnPoints.Length;
+        private void OnConnectionEvent(NetworkManager netManager, ConnectionEventData eventData)
+        {
+            if (eventData.EventType == ConnectionEvent.ClientConnected)
+            {
+                _playerCount.Value++;
+            }
+        }
+
+        private void PlayerCountChanged(int prevVal, int newVal) => UpdateCountTextRPC(newVal);
+
+        [Rpc(SendTo.Everyone)]
+        private void UpdateCountTextRPC(int newValue) => _countTxt.text = $"Players: {newValue}";
+
+        public void SpawnAllPlayers()
+        {
+            if (!IsServer) return;
+
+            int spawnIndex = 0;
+            foreach(ulong clientId in NetworkManager.ConnectedClientsIds)
+            {
+                NetworkObject spawnedPlayerNO = NetworkManager.Instantiate(
+                    _playerPrefab,
+                    _spawnPoints[spawnIndex].position,
+                    _spawnPoints[spawnIndex].rotation
+                );
+
+                spawnedPlayerNO.SpawnAsPlayerObject(clientId);
+
+                spawnIndex = (spawnIndex + 1) % _spawnPoints.Length;
+            }
         }
     }
 }

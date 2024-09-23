@@ -30,22 +30,22 @@ namespace App.Scripts.Player
             
             if (IsServer)
             {
-                Move(moveInput);
+                Move(moveInput, Time.deltaTime);
             }
             else if (IsClient) 
             {
-                MoveServerRPC(moveInput);
+                MoveServerRPC(moveInput, Time.deltaTime);
             }
         }
 
-        private void Move(Vector2 input)
+        private void Move(Vector2 input, float deltaTime)
         {
             Vector3 movementDirection = input.x * playerTransform.right + input.y * playerTransform.forward;
 
-            characterController.Move(movementDirection * movementSpeed * Time.deltaTime);
+            characterController.Move(movementDirection * movementSpeed * deltaTime);
         }
 
         [Rpc(target:SendTo.Server)]
-        private void MoveServerRPC(Vector2 input) => Move(input);
+        private void MoveServerRPC(Vector2 input, float deltaTime) => Move(input, deltaTime);
     }
 }

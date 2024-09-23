@@ -1,21 +1,26 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class PlayerMovement : MonoBehaviour
+namespace App.Scripts.Player
 {
-
-    [SerializeField]
-    float moveSpeed = 3f;
-
-    void Update()
+    public class PlayerMovement : NetworkBehaviour
     {
-        Vector3 moveDirection = new Vector3(0, 0, 0);
-        if (Input.GetKey(KeyCode.W)) moveDirection.z = +1f;
-        if (Input.GetKey(KeyCode.S)) moveDirection.z = -1f;
-        if (Input.GetKey(KeyCode.A)) moveDirection.x = -1f;
-        if (Input.GetKey(KeyCode.D)) moveDirection.x = +1f;
+        [SerializeField]
+        float moveSpeed = 3f;
 
-        transform.position += moveDirection * (moveSpeed * Time.deltaTime);
+        void Update()
+        {
+            if(!IsOwner) return;
+
+            Vector3 moveDirection = new Vector3(0, 0, 0);
+            if (Input.GetKey(KeyCode.W)) moveDirection.z = +1f;
+            if (Input.GetKey(KeyCode.S)) moveDirection.z = -1f;
+            if (Input.GetKey(KeyCode.A)) moveDirection.x = -1f;
+            if (Input.GetKey(KeyCode.D)) moveDirection.x = +1f;
+
+            transform.position += moveDirection * (moveSpeed * Time.deltaTime);
+        }
     }
 }

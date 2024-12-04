@@ -7,8 +7,24 @@ namespace App.Scripts.Player
 {
     public class PlayerMovement : NetworkBehaviour
     {
-        [SerializeField]
-        float moveSpeed = 3f;
+        [SerializeField] float moveSpeed = 3f;
+        [SerializeField] float moveSpeedSprint = 6f;
+        [SerializeField] private Animator playerAnimator;
+        [SerializeField] private OwnerNetworkAnimator networkAnimator;
+
+
+        private void Awake()
+        {
+            if (playerAnimator == null)
+            {
+                playerAnimator = gameObject.GetComponent<Animator>();
+            }
+
+            if (networkAnimator == null)
+            {
+                networkAnimator = gameObject.GetComponent<OwnerNetworkAnimator>();
+            }
+        }
 
         void Update()
         {
@@ -20,7 +36,15 @@ namespace App.Scripts.Player
             if (Input.GetKey(KeyCode.A)) moveDirection.x = -1f;
             if (Input.GetKey(KeyCode.D)) moveDirection.x = +1f;
 
-            transform.position += moveDirection * (moveSpeed * Time.deltaTime);
+            bool isWalking = moveDirection.x != 0 || moveDirection.y != 0;
+            bool isSprinting = Input.GetKey(KeyCode.LeftShift) && isWalking;
+
+            playerAnimator.SetBool("IsWalking", isWalking);
+            playerAnimator.SetBool("IsSprinting", isSprinting);
+            if (Input.GetKey(KeyCode.Space)) networkAnimator.SetTrigger("JumpTrigger");
+            if (Input.GetKey(KeyCode.Z)) networkAnimator.SetTrigger("PunchTrigger");
+
+            transform.position += moveDirection * ((isSprinting ? moveSpeedSprint : moveSpeed) * Time.deltaTime);
         }
     }
 }

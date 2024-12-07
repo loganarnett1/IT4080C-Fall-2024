@@ -34,8 +34,6 @@ public class ChatNetworkManager : NetworkBehaviour, IDisposable
 
     private void OnSendMessageClick()
     {
-        Debug.Log($"in here {messageInputField.text}");
-
         if (messageInputField.text == "") return;
 
         SendMessageRpc(NetworkManager.LocalClientId, messageInputField.text);

@@ -7,7 +7,6 @@ using UnityEngine.EventSystems;
 using System.Linq;
 using Unity.Netcode.Components;
 using TMPro;
-using Unity.VisualScripting;
 
 namespace App.Scripts.Player
 {

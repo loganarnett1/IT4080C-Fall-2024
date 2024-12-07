@@ -27,6 +27,6 @@ public class AmmoSpawner : NetworkBehaviour
     public void SpawnAmmoRpc()
     {
         NetworkObject ammoSpawned = NetworkManager.Instantiate(ammo, transform.position, transform.rotation);
-        ammoSpawned.Spawn(true);        
+        ammoSpawned.Spawn(true);      
     }
 }

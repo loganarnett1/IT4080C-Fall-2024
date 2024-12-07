@@ -19,7 +19,6 @@ public class Projectile : NetworkBehaviour
 
     private void OnCollisionEnter(Collision other)
     {
-        Debug.Log($"OwnerID: {this.OwnerClientId}");
         if (other.gameObject.tag.Equals("Player") && other.gameObject.GetComponent<NetworkObject>().OwnerClientId != this.OwnerClientId)
         {
             other.gameObject.GetComponent<PlayerNetworkHealth>().DamagePlayerRpc(damage);

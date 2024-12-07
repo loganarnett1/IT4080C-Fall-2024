@@ -16,8 +16,6 @@ public class BulletSpawner : NetworkBehaviour
         {
             NetworkObject newProjectile = NetworkManager.Instantiate(projectilePrefab, startingPoint.position, startingPoint.rotation);
 
-            Debug.Log($"Owner of thing: {senderClientId}");
-
             newProjectile.SpawnWithOwnership(senderClientId);
 
             ammo.Value--;

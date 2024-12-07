@@ -7,6 +7,7 @@ using UnityEngine.EventSystems;
 using System.Linq;
 using Unity.Netcode.Components;
 using TMPro;
+using Unity.VisualScripting;
 
 namespace App.Scripts.Player
 {
@@ -50,7 +51,7 @@ namespace App.Scripts.Player
 
         private void Move(Vector2 input, float deltaTime, bool isJumping, bool isPunching, bool isSprinting)
         {
-            Vector3 movementDirection = input.x * playerTransform.right + input.y * playerTransform.forward;
+            Vector3 movementDirection = new Vector3(input.x, 0f, input.y).normalized;
 
             bool isWalking = input.x != 0 || input.y != 0;
 
@@ -60,6 +61,7 @@ namespace App.Scripts.Player
             if (isPunching) networkAnimator.SetTrigger("PunchTrigger");
 
             characterController.Move(movementDirection * deltaTime * (isSprinting ? movementSpeedRunning : movementSpeed));
+            if (isWalking) transform.forward = movementDirection;
         }
 
         [Rpc(target:SendTo.Server)]

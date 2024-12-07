@@ -17,6 +17,7 @@ public class LobbyManager : NetworkBehaviour
     [SerializeField] private GameObject playerListWrapper;
     [SerializeField] private TMP_Text statusText, readyButtonText;
     [SerializeField] private NetworkedPlayerData networkPlayers;
+    [SerializeField] private GameManager gameManager;
 
     private List<GameObject> playerInfoRows = new List<GameObject>();
     private ulong serverId;
@@ -39,6 +40,7 @@ public class LobbyManager : NetworkBehaviour
             statusText.text = "Waiting for Players";
             readyButton.gameObject.SetActive(false);
             startButton.gameObject.SetActive(true);
+            gameManager.AddPlayerRpc(serverId);
         }
         else
         {
@@ -76,6 +78,15 @@ public class LobbyManager : NetworkBehaviour
     private void ClientIsReadyRpc(bool isReady, RpcParams rpcParams = default)
     {
         networkPlayers.UpdateClientStatus(rpcParams.Receive.SenderClientId, isReady);
+
+        if (isReady)
+        {
+            gameManager.AddPlayerRpc(rpcParams.Receive.SenderClientId);
+        }
+        else
+        {
+            gameManager.RemovePlayerRpc(rpcParams.Receive.SenderClientId);
+        }
     }
 
     private void ClientLeaveClick()

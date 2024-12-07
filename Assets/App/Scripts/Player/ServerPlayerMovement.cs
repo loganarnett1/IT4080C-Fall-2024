@@ -17,6 +17,7 @@ namespace App.Scripts.Player
         [SerializeField] private Transform playerTransform;
         [SerializeField] private NetworkAnimator networkAnimator;
         [SerializeField] private Animator playerAnimator;
+        [SerializeField] private BulletSpawner projectileSpawner;
 
         public CharacterController characterController;
 
@@ -40,30 +41,35 @@ namespace App.Scripts.Player
             
             if (IsServer)
             {
-                Move(moveInput, Time.deltaTime, isJumping, isPunching, isSprinting);
+                Move(moveInput, Time.deltaTime, isJumping, isPunching, isSprinting, NetworkManager.LocalClientId);
             }
             else if (IsClient) 
             {
-                MoveServerRPC(moveInput, Time.deltaTime, isJumping, isPunching, isSprinting);
+                MoveServerRPC(moveInput, Time.deltaTime, isJumping, isPunching, isSprinting, NetworkManager.LocalClientId);
             }
         }
 
-        private void Move(Vector2 input, float deltaTime, bool isJumping, bool isPunching, bool isSprinting)
+        private void Move(Vector2 input, float deltaTime, bool isJumping, bool isPunching, bool isSprinting, ulong clientId)
         {
-            Vector3 movementDirection = input.x * playerTransform.right + input.y * playerTransform.forward;
+            Vector3 movementDirection = new Vector3(input.x, 0f, input.y).normalized;
 
             bool isWalking = input.x != 0 || input.y != 0;
 
             playerAnimator.SetBool("IsWalking", isWalking);
             playerAnimator.SetBool("IsSprinting", isSprinting && isWalking);
             if (isJumping) networkAnimator.SetTrigger("JumpTrigger");
-            if (isPunching) networkAnimator.SetTrigger("PunchTrigger");
+            if (isPunching)
+            {
+                networkAnimator.SetTrigger("PunchTrigger");
+                projectileSpawner.FireProjectileRpc(clientId);
+            }
 
             characterController.Move(movementDirection * deltaTime * (isSprinting ? movementSpeedRunning : movementSpeed));
+            if (isWalking) transform.forward = movementDirection;
         }
 
         [Rpc(target:SendTo.Server)]
-        private void MoveServerRPC(Vector2 input, float deltaTime, bool isJumping, bool isPunching, bool isSprinting) =>
-            Move(input, deltaTime, isJumping, isPunching, isSprinting);
+        private void MoveServerRPC(Vector2 input, float deltaTime, bool isJumping, bool isPunching, bool isSprinting, ulong clientId) =>
+            Move(input, deltaTime, isJumping, isPunching, isSprinting, clientId);
     }
 }

@@ -36,6 +36,8 @@ namespace App.Scripts.Player
             if (Input.GetKey(KeyCode.A)) moveDirection.x = -1f;
             if (Input.GetKey(KeyCode.D)) moveDirection.x = +1f;
 
+            moveDirection.Normalize();
+
             bool isWalking = moveDirection.x != 0 || moveDirection.y != 0;
             bool isSprinting = Input.GetKey(KeyCode.LeftShift) && isWalking;
 
@@ -45,6 +47,7 @@ namespace App.Scripts.Player
             if (Input.GetKey(KeyCode.Z)) networkAnimator.SetTrigger("PunchTrigger");
 
             transform.position += moveDirection * ((isSprinting ? moveSpeedSprint : moveSpeed) * Time.deltaTime);
+            if (isWalking) transform.forward = moveDirection;
         }
     }
 }

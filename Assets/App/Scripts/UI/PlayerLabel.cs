@@ -15,19 +15,18 @@ public class PlayerLabel : MonoBehaviour
     public event Action<ulong> onKick;
     private ulong _clientId;
 
-
     private void OnEnable()
     {
         _kickButton.onClick.AddListener(OnKickButtonClicked);
     }
 
-    public void SetPlayerLabelName(ulong playerName)
+    public void SetPlayerLabelName(ulong playerName, string name)
     {
         _clientId = playerName;
-        _playerLabel.text = $"Player {playerName.ToString()}";
+        _playerLabel.text = name;
     }
 
-    public void OnKickButtonClicked()
+    private void OnKickButtonClicked()
     {
         onKick?.Invoke(_clientId);
     }
